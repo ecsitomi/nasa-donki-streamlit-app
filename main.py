@@ -54,6 +54,35 @@ with st.spinner(f"Fetching {event_type} events..."):
     else:
         events = []
 
+# 🌍 Predicted Impacts in Sidebar
+impacts_summary = []
+
+for event in events:
+    analyses = event.get("cmeAnalyses", [])
+    for analysis in analyses:
+        enlil_list = analysis.get("enlilList", [])
+        for sim in enlil_list:
+            for impact in sim.get("impactList", []):
+                location = impact.get("location")
+                arrival = impact.get("arrivalTime", "N/A")
+                if location:
+                    impacts_summary.append({
+                        "location": location,
+                        "arrival": arrival,
+                        "eventID": event.get("activityID", "N/A")
+                    })
+
+if impacts_summary:
+    with st.sidebar.expander("🪐 Predicted Impacts"):
+        for impact in impacts_summary:
+            if impact["location"] == "Earth":
+                st.error(f"🌍 Earth: {impact['arrival']}")
+            else:
+                st.warning(f"🪐 {impact['location']}: {impact['arrival']}")
+else:
+    with st.sidebar.expander("🪐 Predicted Impacts"):
+        st.info("No predicted planetary impacts found.")
+
 # Megjelenítés
 if not events:
     st.warning(f"No {event_type} events found.")
