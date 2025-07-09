@@ -66,7 +66,7 @@ for event in events:
             if not isinstance(sim, dict):
                 continue
 
-            is_earth = sim.get("isEarthGB", True)
+            is_earth = sim.get("isEarthGB") is True
             impact_list = sim.get("impactList", [])
             event_id = event.get("activityID", "N/A")
 
