@@ -25,6 +25,9 @@ def render_item(key, value, level=0):
         else:
             st.markdown(f"{indent}**{key}:** {value}")
 
+def get_event_time(event):
+    return event.get("startTime") or event.get("peakTime") or ""
+
 st.set_page_config(page_title="NASA Space Weather Dashboard", layout="wide")
 st.title("☀️ NASA Space Weather Dashboard")
 
@@ -87,7 +90,8 @@ else:
     st.altair_chart(chart, use_container_width=True)
 
     # 📡 Események részletes listája
-    for idx, event in enumerate(reversed(events)):
+    sorted_events = sorted(events, key=get_event_time, reverse=True)
+    for idx, event in enumerate(sorted_events):
         with st.expander(f"📡 {event_type} #{idx+1}"):
             for key, value in event.items():
                 render_item(key, value)
