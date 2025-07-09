@@ -1,0 +1,73 @@
+import streamlit as st
+from nasa_api import get_date_range, fetch_cme_events, fetch_flr_events, fetch_gst_events
+import pandas as pd
+import altair as alt
+from collections import Counter
+from datetime import datetime, timedelta
+
+st.set_page_config(page_title="NASA Space Weather Dashboard", layout="wide")
+st.title("☀️ NASA Space Weather Dashboard")
+
+st.sidebar.header("Filters")
+
+# Nap választó (időtáv)
+days = st.sidebar.slider("Show events from the past ... days", min_value=1, max_value=365, value=30)
+start_date, end_date = get_date_range(days)
+
+# Eseménytípus-választó
+event_type = st.sidebar.selectbox("Select Event Type", ["CME", "FLR", "GST"])
+
+st.caption(f"Showing **{event_type}** events from **{start_date}** to **{end_date}**")
+
+# Események lekérése
+with st.spinner(f"Fetching {event_type} events..."):
+    if event_type == "CME":
+        events = fetch_cme_events(start_date, end_date)
+    elif event_type == "FLR":
+        events = fetch_flr_events(start_date, end_date)
+    elif event_type == "GST":
+        events = fetch_gst_events(start_date, end_date)
+    else:
+        events = []
+
+# Megjelenítés
+if not events:
+    st.warning(f"No {event_type} events found.")
+else:
+    # 📊 Grafikon: teljes naplista, még ha 0 esemény is van
+    date_range = pd.date_range(start=start_date, end=end_date)
+
+    event_dates = []
+    for e in events:
+        date_str = e.get("startTime") or e.get("peakTime") or ""
+        if date_str:
+            event_dates.append(date_str[:10])
+
+    event_counts = Counter(event_dates)
+
+    data = {
+        "Date": [d.strftime("%Y-%m-%d") for d in date_range],
+        "Count": [event_counts.get(d.strftime("%Y-%m-%d"), 0) for d in date_range]
+    }
+
+    df = pd.DataFrame(data)
+    df["Date"] = pd.to_datetime(df["Date"])  # dátum formázás
+    df["Date"] = df["Date"].dt.strftime("%Y-%m-%d")  # string formátum (év-hónap-nap)
+
+    st.subheader("📊 Event Distribution Over Time")
+    chart = alt.Chart(df).mark_bar(size=20).encode(
+        x=alt.X("Date:N",  # N = nominal, azaz minden nap külön kategória
+                title="Date",
+                sort=None,
+                axis=alt.Axis(labelAngle=-45)),
+        y=alt.Y("Count:Q", title=f"{event_type} Events"),
+        tooltip=["Date", "Count"]
+    ).properties(width=days * 20, height=300)
+
+    st.altair_chart(chart, use_container_width=True)
+
+    # 📡 Események részletes listája
+    for idx, event in enumerate(events):
+        with st.expander(f"📡 {event_type} #{idx+1}"):
+            for key, value in event.items():
+                st.markdown(f"**{key}:** {value}")
