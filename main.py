@@ -88,7 +88,13 @@ for event in events:
                         "eventID": event_id
                     })
 
-
+# 🪐 Other planetary impacts
+with st.sidebar.expander("🪐 Other Impacts"):
+    if other_impacts:
+        for impact in reversed(other_impacts):
+            st.warning(f"{impact['location']}: {impact['arrival']}")
+    else:
+        st.info("No other planetary impacts found.")
 
 # 🌍 Earth impacts
 with st.sidebar.expander("🌍 Earth Impacts"):
@@ -97,14 +103,6 @@ with st.sidebar.expander("🌍 Earth Impacts"):
             st.error(f"Earth: {impact['arrival']}")
     else:
         st.info("No Earth-directed impacts found.")
-
-# 🪐 Other planetary impacts
-with st.sidebar.expander("🪐 Other Impacts"):
-    if other_impacts:
-        for impact in reversed(other_impacts):
-            st.warning(f"{impact['location']}: {impact['arrival']}")
-    else:
-        st.info("No other planetary impacts found.")
 
 # Megjelenítés
 if not events:
