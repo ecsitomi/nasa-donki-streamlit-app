@@ -63,22 +63,31 @@ for event in events:
     for analysis in analyses:
         enlil_list = analysis.get("enlilList", [])
         for sim in enlil_list:
-            if isinstance(sim, dict):
-                impact_list = sim.get("impactList")
-                if isinstance(impact_list, list):
-                    for impact in impact_list:
-                        location = impact.get("location")
-                        arrival = impact.get("arrivalTime", "N/A")
-                        is_earth = impact.get("isEarthGB", True)
-                        entry = {
-                            "location": location,
-                            "arrival": arrival,
-                            "eventID": event.get("activityID", "N/A")
-                        }
-                        if is_earth:
-                            earth_impacts.append(entry)
-                        else:
-                            other_impacts.append(entry)
+            if not isinstance(sim, dict):
+                continue
+
+            is_earth = sim.get("isEarthGB", False)
+            impact_list = sim.get("impactList", [])
+            event_id = event.get("activityID", "N/A")
+
+            if is_earth:
+                arrival_times = [impact.get("arrivalTime") for impact in impact_list if impact.get("location") == "Earth"]
+                for arrival in arrival_times:
+                    earth_impacts.append({
+                        "location": "Earth",
+                        "arrival": arrival or "N/A",
+                        "eventID": event_id
+                    })
+            else:
+                for impact in impact_list:
+                    location = impact.get("location", "N/A")
+                    arrival = impact.get("arrivalTime", "N/A")
+                    other_impacts.append({
+                        "location": location,
+                        "arrival": arrival,
+                        "eventID": event_id
+                    })
+
 
 # 🌍 Earth impacts
 with st.sidebar.expander("🌍 Earth Impacts"):
