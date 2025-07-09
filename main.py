@@ -87,7 +87,7 @@ else:
     st.altair_chart(chart, use_container_width=True)
 
     # 📡 Események részletes listája
-    for idx, event in enumerate(events):
+    for idx, event in enumerate(reversed(events)):
         with st.expander(f"📡 {event_type} #{idx+1}"):
             for key, value in event.items():
                 render_item(key, value)
