@@ -71,13 +71,12 @@ for event in events:
             event_id = event.get("activityID", "N/A")
 
             if is_earth:
-                arrival_times = [impact.get("arrivalTime") for impact in impact_list if impact.get("location") == "Earth"]
-                for arrival in arrival_times:
-                    earth_impacts.append({
-                        "location": "Earth",
-                        "arrival": arrival or "N/A",
-                        "eventID": event_id
-                    })
+                fallback_time = sim.get("estimatedShockArrivalTime") or "N/A"
+                earth_impacts.append({
+                    "location": "Earth",
+                    "arrival": fallback_time,
+                    "eventID": event_id
+                })
             else:
                 for impact in impact_list:
                     location = impact.get("location", "N/A")
