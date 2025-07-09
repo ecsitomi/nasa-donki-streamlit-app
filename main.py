@@ -67,7 +67,7 @@ for event in events:
                 continue
 
             is_earth = sim.get("isEarthGB") is True
-            impact_list = sim.get("impactList", [])
+            impact_list = sim.get("impactList") or []
             event_id = event.get("activityID", "N/A")
 
             if is_earth:
