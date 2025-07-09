@@ -54,8 +54,9 @@ with st.spinner(f"Fetching {event_type} events..."):
     else:
         events = []
 
-# 🌍 Predicted Impacts in Sidebar
-impacts_summary = []
+# 🌍 Külön gyűjtjük a becsapódásokat
+earth_impacts = []
+other_impacts = []
 
 for event in events:
     analyses = event.get("cmeAnalyses", [])
@@ -68,23 +69,32 @@ for event in events:
                     for impact in impact_list:
                         location = impact.get("location")
                         arrival = impact.get("arrivalTime", "N/A")
-                        if location:
-                            impacts_summary.append({
-                                "location": location,
-                                "arrival": arrival,
-                                "eventID": event.get("activityID", "N/A")
-                            })
+                        is_earth = impact.get("isEarthGB", False)
+                        entry = {
+                            "location": location,
+                            "arrival": arrival,
+                            "eventID": event.get("activityID", "N/A")
+                        }
+                        if is_earth:
+                            earth_impacts.append(entry)
+                        else:
+                            other_impacts.append(entry)
 
-if impacts_summary:
-    with st.sidebar.expander("🪐 Predicted Impacts"):
-        for impact in impacts_summary:
-            if impact["location"] == "Earth":
-                st.error(f"🌍 Earth: {impact['arrival']}")
-            else:
-                st.warning(f"🪐 {impact['location']}: {impact['arrival']}")
-else:
-    with st.sidebar.expander("🪐 Predicted Impacts"):
-        st.info("No predicted planetary impacts found.")
+# 🌍 Earth impacts
+with st.sidebar.expander("🌍 Earth Impacts"):
+    if earth_impacts:
+        for impact in reversed(earth_impacts):
+            st.error(f"Earth: {impact['arrival']}")
+    else:
+        st.info("No Earth-directed impacts found.")
+
+# 🪐 Other planetary impacts
+with st.sidebar.expander("🪐 Other Impacts"):
+    if other_impacts:
+        for impact in reversed(other_impacts):
+            st.warning(f"{impact['location']}: {impact['arrival']}")
+    else:
+        st.info("No other planetary impacts found.")
 
 # Megjelenítés
 if not events:
