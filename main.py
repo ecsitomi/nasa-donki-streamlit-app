@@ -62,15 +62,16 @@ for event in events:
     for analysis in analyses:
         enlil_list = analysis.get("enlilList", [])
         for sim in enlil_list:
-            for impact in sim.get("impactList", []):
-                location = impact.get("location")
-                arrival = impact.get("arrivalTime", "N/A")
-                if location:
-                    impacts_summary.append({
-                        "location": location,
-                        "arrival": arrival,
-                        "eventID": event.get("activityID", "N/A")
-                    })
+            if isinstance(sim, dict):
+                for impact in sim.get("impactList", []):
+                    location = impact.get("location")
+                    arrival = impact.get("arrivalTime", "N/A")
+                    if location:
+                        impacts_summary.append({
+                            "location": location,
+                            "arrival": arrival,
+                            "eventID": event.get("activityID", "N/A")
+                        })
 
 if impacts_summary:
     with st.sidebar.expander("🪐 Predicted Impacts"):
