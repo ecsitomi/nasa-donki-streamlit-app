@@ -94,6 +94,7 @@ else:
     sorted_events = sorted(events, key=get_event_time, reverse=True)
     for idx, event in enumerate(sorted_events):
         activity_id = event.get("activityID", "N/A")
-        with st.expander(f"📡 {event_type} #{idx+1} – {activity_id}"):
+        short_id = activity_id.split("-")[0] if isinstance(activity_id, str) else "N/A"
+        with st.expander(f"📡 {event_type} #{idx+1} – {short_id}"):
             for key, value in event.items():
                 render_item(key, value)
