@@ -69,7 +69,7 @@ for event in events:
                     for impact in impact_list:
                         location = impact.get("location")
                         arrival = impact.get("arrivalTime", "N/A")
-                        is_earth = impact.get("isEarthGB", False)
+                        is_earth = impact.get("isEarthGB", True)
                         entry = {
                             "location": location,
                             "arrival": arrival,
