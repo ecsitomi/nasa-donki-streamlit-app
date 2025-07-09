@@ -7,23 +7,24 @@ from datetime import datetime, timedelta
 
 # Események formázása
 def render_item(key, value, level=0):
-    indent = "&nbsp;" * 4 * level
+    indent = " " * level  # unicode spacing
     if isinstance(value, dict):
         for subkey, subval in value.items():
-            render_item(subkey, subval, level=level+1)
+            render_item(subkey, subval, level+1)
     elif isinstance(value, list):
         for i, item in enumerate(value):
             if isinstance(item, dict):
-                st.markdown(f"{indent}**{key} [{i+1}]**")
+                st.write(f"{indent}🔹 {key} [{i+1}]")
                 for subkey, subval in item.items():
-                    render_item(subkey, subval, level=level+1)
+                    render_item(subkey, subval, level+1)
             else:
-                st.markdown(f"{indent}• **{key}:** {item}")
+                st.write(f"{indent}• {key}: {item}")
     else:
         if "link" in key.lower() and isinstance(value, str):
             st.markdown(f"{indent}**{key}:** [🔗 Link]({value})")
         else:
-            st.markdown(f"{indent}**{key}:** {value}")
+            st.write(f"{indent}**{key}:** {value}")
+
 
 def get_event_time(event):
     return event.get("startTime") or event.get("peakTime") or ""
